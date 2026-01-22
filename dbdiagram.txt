@@ -1,0 +1,266 @@
+Table branches {
+  id int [pk, increment]
+  name nvarchar(255) [not null]
+}
+
+Table works {
+  id int [pk, increment]
+  title nvarchar(255) [not null]
+}
+
+Table languages {
+  id int [pk, increment]
+  name nvarchar(255) [unique, not null]
+}
+
+Table genres {
+  id int [pk, increment]
+  name nvarchar(255) [unique, not null]
+}
+
+Table tags {
+  id int [pk, increment]
+  name nvarchar(255) [unique, not null]
+}
+
+Table formats {
+  id int [pk, increment]
+  name nvarchar(255) [unique, not null]
+}
+
+Table publishers {
+  id int [pk, increment]
+  name nvarchar(255) [not null]
+}
+
+Table editions {
+  id int [pk, increment]
+  workId int [not null]
+  languageId int [not null]
+  formatId int [not null]
+  ageRatingId int [not null]
+  publisherId int [not null]
+  cost money
+  ISBN nvarchar(255) [unique, not null]
+  publishYear date [not null]
+}
+
+Table tagsEditions {
+  id int [pk, increment]
+  tagId int [not null]
+  editionId int [not null]
+
+  Indexes {
+    (tagId, editionId) [unique, name: "C_TagsEditions"]
+  }
+}
+
+Table genresEditions {
+  id int [pk, increment]
+  genreId int [not null]
+  editionId int [not null]
+
+  Indexes {
+    (genreId, editionId) [unique, name: "C_GenresEditions"]
+  }
+}
+
+Table copies {
+  id int [pk, increment]
+  editionId int [not null]
+  branchId int [not null]
+  barcode int [unique, not null]
+}
+
+Table orders {
+  id int [pk, increment]
+  supplierId int [not null]
+  branchId int [not null]
+  date date [not null]
+}
+
+Table orderDetails {
+  id int [pk, increment]
+  orderId int [not null]
+  editionId int [not null]
+  quantity int [not null]
+  received bit [not null]
+
+  Indexes {
+    (orderId, editionId) [unique, name: "C_OrderDetails"]
+  }
+}
+
+Table roles {
+  id int [pk, increment]
+  name nvarchar(255) [unique, not null]
+}
+
+Table contributors {
+  id int [pk, increment]
+  name nvarchar(255) [not null]
+}
+
+Table membershipTier {
+  id int [pk, increment]
+  name nvarchar(255) [not null]
+  dailyFine money [not null]
+  maxLoans int [not null]
+  maxRenewals int [not null]
+  maxLoanLenght int [not null]
+}
+
+Table staff {
+  id int [pk, increment]
+  branchId int [not null]
+  name nvarchar(255) [not null]
+}
+
+Table members {
+  id int [pk, increment]
+  homeBranchId int [not null]
+  name nvarchar(255) [not null]
+  address nvarchar(255) [not null]
+  membershipTierId int [not null]
+}
+
+Table ageRatings {
+  id int [pk, increment]
+  rating nvarchar(255) [unique, not null]
+}
+
+Table contributorsWorks {
+  id int [pk, increment]
+  roleId int [not null]
+  workId int [not null]
+  contributorId int [not null]
+
+  Indexes {
+    (roleId, workId, contributorId) [unique, name: "C_ContributorsWorks"]
+  }
+}
+
+Table contributorsEditions {
+  id int [pk, increment]
+  editionId int [not null]
+  roleId int [not null]
+  contributorId int [not null]
+
+  Indexes {
+    (roleId, editionId, contributorId) [unique, name: "C_ContributorsEditions"]
+  }
+}
+
+Table reservations {
+  id int [pk, increment]
+  editionId int [not null]
+  requestDate date [not null]
+  pickUpBranch int
+  memberId int [not null]
+
+  Indexes {
+    (editionId, memberId, requestDate) [unique, name: "C_Reservations"]
+    id [name: "IX_reservations_id"]
+  }
+}
+
+Table loans {
+  id int [pk]
+  copyId int [not null]
+  renewalCount int
+  pickUpDate date [not null]
+  dueDate date [not null]
+  returnedDate date
+
+  Indexes {
+    id [name: "IX_loans_id"]
+  }
+}
+
+Table causes {
+  id int [pk, increment]
+  name nvarchar(255) [unique, not null]
+}
+
+Table fines {
+  id int [pk, increment]
+  causeId int [not null]
+  totalDue money [not null]
+  loanId int [not null]
+}
+
+Table payments {
+  id int [pk, increment]
+  fineId int [not null]
+  amount money [not null]
+  transferDate date [not null]
+}
+
+Table suppliers {
+  id int [pk, increment]
+  name nvarchar(255) [not null]
+}
+
+Ref:works.id < editions.workId
+
+Ref:languages.id < editions.languageId
+
+Ref:formats.id < editions.formatId
+
+Ref:ageRatings.id < editions.ageRatingId
+
+Ref:publishers.id < editions.publisherId
+
+Ref:tags.id < tagsEditions.tagId
+
+Ref:editions.id < tagsEditions.editionId
+
+Ref:genres.id < genresEditions.genreId
+
+Ref:editions.id < genresEditions.editionId
+
+Ref:editions.id < copies.editionId
+
+Ref:branches.id < copies.branchId
+
+Ref:suppliers.id < orders.supplierId
+
+Ref:branches.id < orders.branchId
+
+Ref:orders.id < orderDetails.orderId
+
+Ref:editions.id < orderDetails.editionId
+
+Ref:branches.id < staff.branchId
+
+Ref:branches.id < members.homeBranchId
+
+Ref:membershipTier.id < members.membershipTierId
+
+Ref:roles.id < contributorsWorks.roleId
+
+Ref:works.id < contributorsWorks.workId
+
+Ref:contributors.id < contributorsWorks.contributorId
+
+Ref:editions.id < contributorsEditions.editionId
+
+Ref:roles.id < contributorsEditions.roleId
+
+Ref:contributors.id < contributorsEditions.contributorId
+
+Ref:editions.id < reservations.editionId
+
+Ref:branches.id < reservations.pickUpBranch
+
+Ref:members.id < reservations.memberId
+
+Ref:reservations.id - loans.id
+
+Ref:copies.id < loans.copyId
+
+Ref:causes.id < fines.causeId
+
+Ref:loans.id < fines.loanId
+
+Ref:fines.id < payments.fineId
